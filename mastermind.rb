@@ -2,13 +2,10 @@ class Mastermind
   COLORS = ["red", "orange", "yellow", "green", "blue", "purple"]
   @@arr = []
   @@turn = 0
-  @@first = ''
-  @@second = ''
-  @@third = ''
-  @@fourth = ''
   @@guess_arr = []
+  @@guesses_arr = []
   @@game_over = false
-  attr_accessor :first, :second, :third, :fourth
+  attr_accessor :first, :second, :third, :fourth, :guess_arr
 
   def initialize
     i = 0
@@ -21,7 +18,7 @@ class Mastermind
     play
   end
 
-  def welcome #introduction to rules
+  def welcome # introduction to rules
     puts 'Welcome to Mastermind!'
     puts 'The computer has chosen four random colors out of the following: '
     puts 'Red, orange, yellow, green, blue, purple'
@@ -53,54 +50,41 @@ class Mastermind
         puts 'Please guess a valid color.'
         guess = gets.chomp.downcase
       end
-      if i == 1
-        @@first = guess
-      elsif i == 2
-        @@second = guess
-      elsif i == 3
-        @@third = guess
-      else
-        @@fourth = guess
-      end
+      @@guesses_arr[i - 1] = guess
       i += 1
     end
-    puts "Your guess was #{@@first}, #{@@second}, #{@@third}, #{@@fourth}."
+    puts "Your guess was #{@@guesses_arr[0]}, #{@@guesses_arr[1]}, #{@@guesses_arr[2]}, #{@@guesses_arr[3]}."
     @@turn += 1
   end
 
   def return_information
-    if @@first == @@arr[0]
-      @@guess_arr[0] = 'c'
-    elsif @@arr.include?(@@first) == true
-      @@guess_arr[0] = 'p'
-    else
-      @@guess_arr[0] = 'x'
+    @@guess_arr = []
+    i = 0
+    while i < 4
+      if @@guesses_arr[i] == @@arr[i]
+        @@guess_arr[i] = 'c'
+      end
+      i += 1
     end
-    if @@second == @@arr[1]
-        @@guess_arr[1] = 'c'
-      elsif @@arr.include?(@@second) == true
-        @@guess_arr[1] = 'p'
-      else
-        @@guess_arr[1] = 'x'
-    end
-    if @@third == @@arr[2]
-        @@guess_arr[2] = 'c'
-      elsif @@arr.include?(@@third) == true
-        @@guess_arr[2] = 'p'
-      else
-        @@guess_arr[2] = 'x'
-    end
-    if @@fourth == @@arr[3]
-        @@guess_arr[3] = 'c'
-      elsif @@arr.include?(@@fourth) == true
-        @@guess_arr[3] = 'p'
-      else
-        @@guess_arr[3] = 'x'
+    j = 0
+    while j < 4
+      if @@guess_arr[j] != 'c'
+        if @@arr.include?(@@guesses_arr[j]) == true
+          if duplicate_checker(@@guesses_arr[j]) == false
+            @@guess_arr[j] = 'p'
+          else
+            @@guess_arr[j] = 'x'
+          end
+        else
+          @@guess_arr[j] = 'x'
+        end
+      end
+      j += 1
     end
     puts "Results: "
-    print @@guess_arr
+    print @@guess_arr.shuffle()
     puts
-    if @@guess_arr == ["c", "c", "c", "c"]
+    if @@guesses_arr == @@arr
       puts "You win!"
       if @@turn == 1
         puts "It took you 1 turn!"
@@ -108,6 +92,23 @@ class Mastermind
         puts "It took you #{@@turn} turns!"
       end
       @@game_over = true
+    end
+  end
+
+  def duplicate_checker(color)
+    if @@arr.count(color) >= @@guesses_arr.count(color)
+     false
+    else
+      computer = @@arr.each_index.select{|i| @@arr[i] == color}
+      guesser = @@guesses_arr.each_index.select{|i| @@guesses_arr[i] == color}
+      if computer - guesser == []
+        true
+      else
+        diff = guesser - computer
+        if @@guesses_arr[diff[0]] == 'p'
+          true
+        end
+      end
     end
   end
 
