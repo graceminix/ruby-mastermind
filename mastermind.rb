@@ -93,11 +93,14 @@ class Mastermind
       puts 'The correct answer was: '
       print @@arr
       puts
+    elsif @@choice == 2 && @@turn < 12
+      puts
     elsif @@choice == 1 && @@turn < 12
       puts 'The computer correctly guessed the array!'
       print @@arr
       puts
-    else
+    elses
+      puts 'You win!'
       puts 'Congratulations!'
       print @@arr
       puts
