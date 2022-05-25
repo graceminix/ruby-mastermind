@@ -7,6 +7,7 @@ class Mastermind
   @@game_over = false
   @@choice = nil
   @@rando_arr = []
+  @@banned_arr = []
   attr_accessor :first, :second, :third, :fourth, :guess_arr
 
   def initialize
@@ -92,22 +93,25 @@ class Mastermind
       puts 'The correct answer was: '
       print @@arr
       puts
+    elsif @@choice == 1 && @@turn < 12
+      puts 'The computer correctly guessed the array!'
+      print @@arr
+      puts
     else
-      puts 'You win!'
       puts 'Congratulations!'
+      print @@arr
+      puts
     end
   end
 
   def computer_guess
-    @@guesses_arr = []
-    if @@turn < 12
+    if @@turn < 1
       i = 0
       while i < 4
         @@guesses_arr.push(COLORS.sample)
         i += 1
       end
     else
-      puts @@rando_arr
       smart_guess
     end
     puts "Computer's guess: "
@@ -117,6 +121,42 @@ class Mastermind
   end
 
   def smart_guess
+    temp_array = []
+    if @@rando_arr.include?('c') == true || @@rando_arr.include?('p') == true
+      number1 = @@rando_arr.count('c')
+      number2 = @@rando_arr.count('p')
+      number = number1 + number2
+      i = 0
+      while i < number
+        color_choice = @@guesses_arr.sample
+        until @@banned_arr.count(color_choice) == 0
+          color_choice = @@guesses_arr.sample
+        end
+        temp_array.push(color_choice)
+        @@guesses_arr.delete_at(@@guesses_arr.find_index(color_choice))
+        i += 1
+      end
+      enough_already = COLORS - @@banned_arr - @@guesses_arr
+      until temp_array.length == 4
+        temp_array.push(enough_already.sample)
+      end
+      @@guesses_arr = temp_array
+    end
+    if @@rando_arr.count('x') == 4
+      placeholder1 = @@guesses_arr.uniq{|x| x}
+      placeholder2 = placeholder1 - @@banned_arr
+      forpicking_arr = placeholder2 + @@banned_arr
+      @@banned_arr = forpicking_arr
+      placeholder3 = COLORS - @@banned_arr
+      @@guesses_arr = []
+      until @@guesses_arr.length == 4
+        @@guesses_arr.push(placeholder3.sample)
+      end
+    end
+    until @@guesses_arr.length == 4
+      placeholder4 = COLORS - @@banned_arr
+      @@guesses_arr.push(placeholder4.sample)
+    end
   end
 
   def guess_order
@@ -166,11 +206,20 @@ class Mastermind
     puts "This was the #{@@turn} guess."
     puts
     if @@guesses_arr == @@arr
-      puts "You win!"
-      if @@turn == 1
-        puts "It took you 1 turn!"
+      if @@choice == 2
+        puts "You win!"
+        if @@turn == 1
+          puts "It took you 1 turn!"
+        else
+          puts "It took you #{@@turn} turns!"
+        end
       else
-        puts "It took you #{@@turn} turns!"
+        puts 'You lose!'
+        if @@turn == 1
+          puts 'It took the computer 1 turn!'
+        else
+          puts "It took the computer #{@@turn} turns!"
+        end
       end
       @@game_over = true
     end
